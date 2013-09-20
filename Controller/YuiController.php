@@ -11,13 +11,15 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Resource\FileResource;
+use Symfony\Component\Process\Process;
 
 class YuiController extends Controller
 {
-	const YUI3_JSON_DIR    = 'src/loader/js';
-	const YUI3_JSON_FILE   = 'yui3.json';
+	const YUI3_JSON_DIR   = 'src/loader/js';
+	const YUI3_JSON_FILE  = 'yui3.json';
 
-	const CACHE = false;
+	const CACHE    = true;
+	const GENERATE = true;
 
     public function configAction()
     {
@@ -62,15 +64,37 @@ class YuiController extends Controller
    			$name = $c['name'];
    			$root = $c['root'];
 
-            // Look for yui3.json loader metadata file.
-            $locator = new FileLocator;
-
             $metadata = '';
 
-            try {
-                $path = $locator->locate(self::YUI3_JSON_FILE, $this->get('kernel')->getRootDir().'/../web/'.$root.'/'.self::YUI3_JSON_DIR, true);
-                $metadata = file_get_contents($path);
-            } catch (\Exception $e) {}
+            if (self::GENERATE === true) {
+                $path = $this->get('kernel')->getRootDir().'/../web/'.$root.'/src';
+                $yogi = $this->container->getParameter('rednose_yui.yogi_bin');
+
+				$js    = sys_get_temp_dir().'/'.'yui3.js';
+				$json  = sys_get_temp_dir().'/'.'yui3.json';
+				$tests = sys_get_temp_dir().'/'.'load-tests.js';
+
+				$process = new Process($yogi.' loader --yes --start '.$path.' -js '.$js.' -json '.$json.' -tests '.$tests);
+				$process->run();
+
+				if (!$process->isSuccessful()) {
+				    throw new \RuntimeException($process->getErrorOutput());
+				}
+
+                $metadata = file_get_contents($json);
+
+                unlink($js);
+                unlink($json);
+                unlink($tests);
+            } else {
+	            // Look for yui3.json loader metadata file.
+	            $locator = new FileLocator;
+
+	            try {
+	                $path = $locator->locate(self::YUI3_JSON_FILE, $this->get('kernel')->getRootDir().'/../web/'.$root.'/'.self::YUI3_JSON_DIR, true);
+	                $metadata = file_get_contents($path);
+	            } catch (\Exception $e) {}
+            }
 
 	   		$groups[] = array(
 				'name'     => $c['name'],

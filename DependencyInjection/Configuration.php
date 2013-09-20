@@ -17,6 +17,7 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
+                ->scalarNode('yogi_bin')->isRequired()->end()
                 ->arrayNode('groups')
                     ->prototype('array')
                         ->children()

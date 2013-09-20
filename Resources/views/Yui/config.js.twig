@@ -36,28 +36,26 @@
                     'gallerycss-': { type: 'css' }
                 }
             }
+
+            {% for group in groups %}
+                , '{{ group.name }}': {
+                    base: '{{ asset(null) }}{{ group.root }}/build/',
+                    root: '{{ group.root }}/build/',
+
+                    {% if app.environment == 'dev' %}
+                        combine: false,
+                        debug : true,
+                        filter: 'debug'
+                    {% else %}
+                        combine: true
+                    {% endif %}
+
+                    {% if group.metadata %}
+                        , modules: {{ group.metadata|raw }}
+                    {% endif %}
+                }
+            {% endfor %}
         }
     }
-
-    {% for group in groups %}
-        YUI().mix(YUI_config.groups, {
-        	'{{ group.name }}': {
-                base: '{{ asset(null) }}{{ group.root }}/build/',
-                root: '{{ group.root }}/build/',
-
-                {% if app.environment == 'dev' %}
-                    combine: false,
-                    debug : true,
-                    filter: 'debug'
-                {% else %}
-                    combine: true
-                {% endif %}
-
-                {% if group.metadata %}
-                    , modules: {{ group.metadata|raw }}
-                {% endif %}
-            }
-        });
-    {% endfor %}
 
 {% endautoescape %}

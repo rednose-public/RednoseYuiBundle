@@ -11,8 +11,13 @@ use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Resource\FileResource;
+use Symfony\Component\Config\Resource\DirectoryResource;
 use Symfony\Component\Process\Process;
 
+/**
+ * Provides a dynamically generated and cached YUI3 config file, containing
+ * module metadata and group configuration.
+ */
 class YuiController extends Controller
 {
 	const YUI3_JSON_DIR   = 'src/loader/js';
@@ -21,6 +26,11 @@ class YuiController extends Controller
 	const CACHE    = true;
 	const GENERATE = true;
 
+    /**
+     * Returns a YUI3 config JavaScript file.
+     *
+     * @return Response
+     */
     public function configAction()
     {
     	if (self::CACHE === true) {
@@ -29,17 +39,20 @@ class YuiController extends Controller
 	        $configCache = new ConfigCache($cachePath, true);
 
 	        if (!$configCache->isFresh()) {
-	            // fill this with an array of 'users.yml' file paths
-	            $yamlUserFiles = array();
-
 	            $resources = array();
 
-	            foreach ($yamlUserFiles as $yamlUserFile) {
-	                // see the previous article "Loading resources" to
-	                // see where $delegatingLoader comes from
-	                $delegatingLoader->load($yamlUserFile);
-	                $resources[] = new FileResource($yamlUserFile);
-	            }
+			   	$config = $this->container->getParameter('rednose_yui.groups');
+
+			   	foreach ($config as $c) {
+			   		$root = $c['root'];
+	                $path = $this->get('kernel')->getRootDir().'/../web/'.$root;
+
+		            if (self::GENERATE === true) {
+			            $resources[] = new DirectoryResource($path.'/src', '/\.json$/');
+			        } else {
+			            $resources[] = new FileResource($path.'/'.self::YUI3_JSON_DIR.'/'.YUI3_JSON_FILE);
+			        }
+			   	}
 
 	            $configCache->write($this->getContent(), $resources);
 	        }
@@ -54,6 +67,12 @@ class YuiController extends Controller
         ));
     }
 
+    /**
+     * Walks through all configured YUI3 dirs and either loads the yui3.json file
+     * or generates the loader metadata.
+     *
+     * @return String YUI3 config object
+     */
     protected function getContent()
     {
 	   	$config = $this->container->getParameter('rednose_yui.groups');
@@ -64,7 +83,7 @@ class YuiController extends Controller
    			$name = $c['name'];
    			$root = $c['root'];
 
-            $metadata = '';
+            $metadata = null;
 
             if (self::GENERATE === true) {
                 $path = $this->get('kernel')->getRootDir().'/../web/'.$root.'/src';

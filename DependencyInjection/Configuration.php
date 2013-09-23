@@ -17,8 +17,8 @@ class Configuration implements ConfigurationInterface
 
         $rootNode
             ->children()
-                ->scalarNode('loader_bin')->defaultValue(__DIR__.'../Resources/node_modules/.bin/yui-loader')->end()
-                ->scalarNode('yogi_bin')->defaultValue(__DIR__.'../Resources/node_modules/.bin/yogi_bin')->end()
+                ->scalarNode('loader_bin')->defaultValue(__DIR__.'/../Resources/node_modules/.bin/yui-loader')->end()
+                ->scalarNode('yogi_bin')->defaultValue(__DIR__.'/../Resources/node_modules/.bin/yogi')->end()
                 ->arrayNode('groups')
                     ->prototype('array')
                         ->children()

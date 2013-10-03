@@ -27,6 +27,14 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+                ->arrayNode('bundles')
+                    ->prototype('array')
+                        ->children()
+                            ->scalarNode('name')->isRequired()->end()
+                            ->scalarNode('modules')->isRequired()->end()
+                        ->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $treeBuilder;

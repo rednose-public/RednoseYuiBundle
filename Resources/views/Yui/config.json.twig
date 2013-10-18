@@ -12,7 +12,7 @@
     {% if local == true %}
         "base": "{{ base }}cdn/yui3/build/",
     {% else %}
-        "base": "{{ asset(null) }}cdn/yui3/build/",
+        "base": "{{ app.request.getBaseURL|replace({'/app_dev.php': ''}) }}/cdn/yui3/build/",
     {% endif %}
 
     {% if local == false %}
@@ -20,7 +20,7 @@
         "debug": false,
 
         {# Combo loader URL #}
-        "comboBase": "{{ asset(null) }}cdn/combo?",
+        "comboBase": "{{ app.request.getBaseURL|replace({'/app_dev.php': ''}) }}/cdn/combo?",
 
         {# Combo loader root #}
         "root": "cdn/yui3/build/",
@@ -42,7 +42,7 @@
             {% if local == true %}
                 "base": "{{ base }}cdn/yui3-gallery/build/",
             {% else %}
-                "base": "{{ asset(null) }}cdn/yui3-gallery/build/",
+                "base": "{{ app.request.getBaseURL|replace({'/app_dev.php': ''}) }}/cdn/yui3-gallery/build/",
             {% endif %}
 
             {% if local == false %}
@@ -73,7 +73,7 @@
                 {% if local == true %}
                     "base": "{{ base }}{{ group.root }}/build/",
                 {% else %}
-                    "base": "{{ asset(null) }}{{ group.root }}/build/",
+                    "base": "{{ app.request.getBaseURL|replace({'/app_dev.php': ''}) }}/{{ group.root }}/build/",
                 {% endif %}
 
                 {% if local == false %}

@@ -22,6 +22,9 @@
         {# Combo loader URL #}
         "comboBase": "{{ app.request.getBaseURL|replace({'/app_dev.php': ''}) }}/cdn/combo?",
 
+        {# Maximum url length based on the HTTP/1.1 RFC, should decrease the amount of GET requests. #}
+        "maxURLLength" : 8177,
+
         {# Combo loader root #}
         "root": "cdn/yui3/build/",
 
@@ -48,6 +51,9 @@
             {% if local == false %}
                 {# Combo loader root #}
                 "root": "cdn/yui3-gallery/build/",
+
+                {# Maximum url length based on the HTTP/1.1 RFC, should decrease the amount of GET requests. #}
+                "maxURLLength" : 8177,
 
                 {# Combine and filter settings #}
                 {% if app.environment == 'dev' %}
@@ -79,6 +85,9 @@
                 {% if local == false %}
                     {# Combo loader root #}
                     "root": "{{ group.root }}/build/",
+
+                    {# Maximum url length based on the HTTP/1.1 RFC, should decrease the amount of GET requests. #}
+                    "maxURLLength" : 8177,
 
                     {# Combine and filter settings #}
                     {% if app.environment == 'dev' %}

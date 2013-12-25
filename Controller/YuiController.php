@@ -14,6 +14,7 @@ use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\Config\Resource\DirectoryResource;
 use Symfony\Component\Process\Process;
+use Symfony\Component\HttpFoundation\Request;
 
 // TODO: Refactor, needs more DRY.
 
@@ -48,28 +49,17 @@ class YuiController extends Controller
      */
     public function configAction()
     {
+        /** @var Request $request */
+        $request = $this->get('request');
+        $baseUrl = str_replace('/app_dev.php', '', $request->getBaseUrl());
+
     	if (self::CACHE === true) {
 	        $cachePath = $this->cachePath.'/config.js';
 
 	        $configCache = new ConfigCache($cachePath, true);
 
 	        if (!$configCache->isFresh()) {
-	            $resources = array();
-
-			   	$config = $this->container->getParameter('rednose_yui.groups');
-
-			   	foreach ($config as $c) {
-			   		$root = $c['root'];
-	                $path = $this->get('kernel')->getRootDir().'/../web/'.$root;
-
-		            if (self::GENERATE === true) {
-			            $resources[] = new DirectoryResource($path.'/src', '/\.json$/');
-			        } else {
-			            $resources[] = new FileResource($path.'/'.self::YUI3_JSON_DIR.'/'.YUI3_JSON_FILE);
-			        }
-			   	}
-
-	            $configCache->write($this->getContent(), $resources);
+                $this->build($baseUrl);
 	        }
 
 	        return new Response(file_get_contents($cachePath), 200, array(
@@ -77,9 +67,32 @@ class YuiController extends Controller
 	        ));
     	}
 
-        return new Response($this->getContent(), 200, array(
+        return new Response($this->getContent($baseUrl), 200, array(
             'Content-Type' => 'application/javascript'
         ));
+    }
+
+    public function build($baseUrl)
+    {
+        $cachePath = $this->cachePath.'/config.js';
+
+        $configCache = new ConfigCache($cachePath, true);
+        $resources = array();
+
+        $config = $this->container->getParameter('rednose_yui.groups');
+
+        foreach ($config as $c) {
+            $root = $c['root'];
+            $path = $this->get('kernel')->getRootDir().'/../web/'.$root;
+
+            if (self::GENERATE === true) {
+                $resources[] = new DirectoryResource($path.'/src', '/\.json$/');
+            } else {
+                $resources[] = new FileResource($path.'/'.self::YUI3_JSON_DIR.'/'.YUI3_JSON_FILE);
+            }
+        }
+
+        $configCache->write($this->getContent($baseUrl), $resources);
     }
 
     /**
@@ -89,7 +102,11 @@ class YuiController extends Controller
      */
     public function packageAction($module)
     {
-    	if (self::CACHE === true) {
+        /** @var Request $request */
+        $request = $this->get('request');
+        $baseUrl = str_replace('/app_dev.php', '', $request->getBaseUrl());
+
+        if (self::CACHE === true) {
 	        $cachePath = $this->cachePath.'/'.$module.'.js';
 
 	        $configCache = new ConfigCache($cachePath, true);
@@ -110,7 +127,7 @@ class YuiController extends Controller
 			        }
 			   	}
 
-	            $configCache->write($this->getContent($module), $resources);
+	            $configCache->write($this->getContent($baseUrl, $module), $resources);
 	        }
 
 	        return new Response(file_get_contents($cachePath), 200, array(
@@ -118,7 +135,7 @@ class YuiController extends Controller
 	        ));
     	}
 
-        return new Response($this->getContent($module), 200, array(
+        return new Response($this->getContent($baseUrl, $module), 200, array(
             'Content-Type' => 'application/javascript'
         ));
     }
@@ -129,7 +146,7 @@ class YuiController extends Controller
      *
      * @return Rendered file
      */
-    protected function getContent($module = null)
+    protected function getContent($baseUrl, $module = null)
     {
 	   	$config = $this->container->getParameter('rednose_yui.groups');
 
@@ -180,10 +197,11 @@ class YuiController extends Controller
 
 	   	if ($module) {
 		   	$json = $this->get('templating')->render('RednoseYuiBundle:Yui:config.json.twig', array(
-	            'groups' => $groups,
-	            'local'  => true,
-	            'base'   => $this->get('kernel')->getRootDir().'/../web/',
-	        ));
+                'groups'  => $groups,
+                'local'   => true,
+                'base'    => $this->get('kernel')->getRootDir() . '/../web/',
+                'baseUrl' => $baseUrl,
+            ));
 
             $loader = $this->container->getParameter('rednose_yui.loader_bin');
 
@@ -207,8 +225,9 @@ class YuiController extends Controller
 	   	}
 
 	   	$json = $this->get('templating')->render('RednoseYuiBundle:Yui:config.json.twig', array(
-            'groups' => $groups,
-            'local'  => false,
+            'groups'  => $groups,
+            'local'   => false,
+            'baseUrl' => $baseUrl,
         ));
 
         return 'YUI_config = '.$json.';';

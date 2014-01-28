@@ -15,8 +15,7 @@ use Symfony\Component\Config\Resource\FileResource;
 use Symfony\Component\Config\Resource\DirectoryResource;
 use Symfony\Component\Process\Process;
 use Symfony\Component\HttpFoundation\Request;
-
-// TODO: Refactor, needs more DRY.
+use Rednose\YuiBundle\Builder\ConfigBuilder;
 
 /**
  * Provides a dynamically generated and cached YUI3 config file, containing
@@ -49,30 +48,14 @@ class YuiController extends Controller
      */
     public function configAction()
     {
-        /** @var Request $request */
-        $request = $this->get('request');
-        $baseUrl = str_replace('/app_dev.php', '', $request->getBaseUrl());
+        $baseUrl = str_replace('/app_dev.php', '', $this->getRequest()->getBaseUrl());
 
-    	if (self::CACHE === true) {
-	        $cachePath = $this->cachePath.'/config.js';
-
-	        $configCache = new ConfigCache($cachePath, true);
-
-	        if (!$configCache->isFresh()) {
-                $this->build($baseUrl);
-	        }
-
-	        return new Response(file_get_contents($cachePath), 200, array(
-	            'Content-Type' => 'application/javascript'
-	        ));
-    	}
-
-        return new Response($this->getContent($baseUrl), 200, array(
+        return new Response($this->getConfigBuilder()->getConfig($baseUrl), 200, array(
             'Content-Type' => 'application/javascript'
         ));
     }
 
-    public function build($baseUrl)
+    public function build($hostSuffix = '')
     {
         $cachePath = $this->cachePath.'/config.js';
 
@@ -92,7 +75,7 @@ class YuiController extends Controller
             }
         }
 
-        $configCache->write($this->getContent($baseUrl), $resources);
+        $configCache->write($this->getContent($hostSuffix), $resources);
     }
 
     /**
@@ -160,24 +143,8 @@ class YuiController extends Controller
 
             if (self::GENERATE === true) {
                 $path = $this->get('kernel')->getRootDir().'/../web/'.$root.'/src';
-                $yogi = $this->container->getParameter('rednose_yui.yogi_bin');
 
-				$jsFile    = sys_get_temp_dir().'/'.'yui3.js';
-				$jsonFile  = sys_get_temp_dir().'/'.'yui3.json';
-				$testsFile = sys_get_temp_dir().'/'.'load-tests.js';
-
-				$process = new Process($yogi.' loader --yes --start '.$path.' -js '.$jsFile.' -json '.$jsonFile.' -tests '.$testsFile);
-				$process->run();
-
-				if (!$process->isSuccessful()) {
-				    throw new \RuntimeException($process->getErrorOutput());
-				}
-
-                $metadata = file_get_contents($jsonFile);
-
-                unlink($jsFile);
-                unlink($jsonFile);
-                unlink($testsFile);
+                $metadata = $this->get('rednose_yui.driver.yogi')->getLoaderMetadata($path);
             } else {
 	            // Look for yui3.json loader metadata file.
 	            $locator = new FileLocator;
@@ -231,5 +198,13 @@ class YuiController extends Controller
         ));
 
         return 'YUI_config = '.$json.';';
+    }
+
+    /**
+     * @return ConfigBuilder
+     */
+    protected function getConfigBuilder()
+    {
+        return $this->get('rednose_yui.builder.config_builder');
     }
 }

@@ -2,13 +2,14 @@
 
 namespace Rednose\YuiBundle\Command;
 
-use Rednose\YuiBundle\Controller\YuiController;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Rednose\YuiBundle\Builder\ConfigBuilder;
+use Symfony\Component\HttpKernel\Kernel;
 
 class BuildCommand extends ContainerAwareCommand
 {
@@ -17,16 +18,30 @@ class BuildCommand extends ContainerAwareCommand
         $this
             ->setName('rednose:yui:build')
             ->setDescription('Builds the YUI configuration.')
-            ->addArgument('baseUrl', InputArgument::REQUIRED, 'The base URL');
+            ->addArgument('baseUrl', InputArgument::OPTIONAL, 'The base URL');
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $container  = $this->getContainer();
-        $controller = new YuiController;
+        $output->writeln(sprintf('Writing the YUI config for the <info>%s</info> environment', $this->getKernel()->getEnvironment()));
 
-        $controller->setContainer($container);
-        $controller->build($input->getArgument('baseUrl'));
+        $this->getConfigBuilder()->buildConfig($input->getArgument('baseUrl'));
+    }
+
+    /**
+     * @return Kernel
+     */
+    protected function getKernel()
+    {
+        return $this->getContainer()->get('kernel');
+    }
+
+    /**
+     * @return ConfigBuilder
+     */
+    protected function getConfigBuilder()
+    {
+        return $this->getContainer()->get('rednose_yui.builder.config_builder');
     }
 }

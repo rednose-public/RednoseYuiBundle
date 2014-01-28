@@ -19,6 +19,11 @@ class RednoseYuiExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
+        // XXX: Load parameters into the container for backwards compatibility.
+        foreach ($config as $k => $v) {
+            $container->setParameter($this->getAlias().'.'.$k, $v);
+        }
+
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
         $serviceFiles = array('twig', 'services');

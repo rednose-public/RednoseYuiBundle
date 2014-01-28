@@ -48,9 +48,24 @@ class YuiController extends Controller
      */
     public function configAction()
     {
-        $baseUrl = str_replace('/app_dev.php', '', $this->getRequest()->getBaseUrl());
+        $request = $this->get('request');
+        $baseUrl = str_replace('/app_dev.php', '', $request->getBaseUrl());
 
-        return new Response($this->getConfigBuilder()->getConfig($baseUrl), 200, array(
+        if (self::CACHE === true) {
+            $cachePath = $this->cachePath.'/config.js';
+
+            $configCache = new ConfigCache($cachePath, true);
+
+            if (!$configCache->isFresh()) {
+                $this->build($baseUrl);
+            }
+
+            return new Response(file_get_contents($cachePath), 200, array(
+                'Content-Type' => 'application/javascript'
+            ));
+        }
+
+        return new Response($this->getContent($baseUrl), 200, array(
             'Content-Type' => 'application/javascript'
         ));
     }

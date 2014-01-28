@@ -39,6 +39,8 @@ class ConfigBuilder
      * @param YogiDriver      $yogi
      * @param EngineInterface $templating
      * @param array           $groups
+     *
+     * @throws \RuntimeException
      */
     public function __construct(Kernel $kernel, YogiDriver $yogi, EngineInterface $templating, array $groups)
     {
@@ -47,6 +49,11 @@ class ConfigBuilder
         $this->groups     = $groups;
         $this->templating = $templating;
         $this->path       = sprintf('%s/../web/%s/%s', $kernel->getRootDir(), self::YUI_DIR, $this->getFilename());
+
+        // Check if the required yogi config file is present.
+        if (!file_exists($kernel->getRootDir().'/../.yogi.json')) {
+            throw new \RuntimeException('.yogi.json file not found in root path.');
+        }
     }
 
     /**

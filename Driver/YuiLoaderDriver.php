@@ -2,7 +2,7 @@
 
 namespace Rednose\YuiBundle\Driver;
 
-use Symfony\Component\Process\ProcessBuilder;
+use Symfony\Component\Process\Process;
 
 /**
  * Binary driver for the YUI loader.
@@ -12,15 +12,15 @@ class YuiLoaderDriver
     /**
      * @var string
      */
-    protected $path;
+    protected $loader;
 
     /*
      * Constructor.
      *
      * @param string $path
      */
-    public function __construct($path)
+    public function __construct($loader)
     {
-
+        $this->loader = $loader;
     }
 }

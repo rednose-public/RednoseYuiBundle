@@ -44,6 +44,10 @@ class RednoseYuiExtension extends Extension
         if (!empty($config['groups'])) {
             $this->loadConfigBuilder($config['groups'], $container);
         }
+
+        if (!empty($config['bundles'])) {
+            $this->loadPackageBuilder($config['bundles'], $container);
+        }
     }
 
     /**
@@ -85,6 +89,21 @@ class RednoseYuiExtension extends Extension
         }
 
         $container->getDefinition('rednose_yui.builder.config_builder')->replaceArgument(3, $groups);
+    }
+
+    /**
+     * @param array            $config
+     * @param ContainerBuilder $container
+     */
+    private function loadPackageBuilder(array $config, ContainerBuilder $container)
+    {
+        $packages = array();
+
+        foreach ($config as $package) {
+            $packages[$package['name']] = $package['modules'];
+        }
+
+        $container->getDefinition('rednose_yui.builder.package_builder')->replaceArgument(3, $packages);
     }
 
     /**

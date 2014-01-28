@@ -10,6 +10,8 @@ use Symfony\Component\Config\Resource\DirectoryResource;
 
 class ConfigBuilder
 {
+    const YUI_DIR = 'yui';
+
     /**
      * @var Kernel
      */
@@ -44,7 +46,7 @@ class ConfigBuilder
         $this->yogi       = $yogi;
         $this->groups     = $groups;
         $this->templating = $templating;
-        $this->path       = sprintf('%s/../web/yui/%s', $kernel->getRootDir(), $this->getFilename());
+        $this->path       = sprintf('%s/../web/%s/%s', $kernel->getRootDir(), self::YUI_DIR, $this->getFilename());
     }
 
     /**
@@ -61,7 +63,7 @@ class ConfigBuilder
             $this->cacheConfig($baseUrl, $local);
         }
 
-        return sprintf('/yui/%s', $this->getFilename());
+        return sprintf('/%s/%s', self::YUI_DIR, $this->getFilename());
     }
 
     /**
@@ -120,7 +122,6 @@ class ConfigBuilder
 
         return $groups;
     }
-
 
     /**
      * @return string

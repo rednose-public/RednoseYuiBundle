@@ -108,7 +108,7 @@ class RednoseYuiExtension extends Extension
             $packages[$package['name']] = $package['modules'];
         }
 
-        $container->getDefinition('rednose_yui.builder.package_builder')->replaceArgument(3, $packages);
+        $container->getDefinition('rednose_yui.builder.package_builder')->replaceArgument(2, $packages);
     }
 
     /**

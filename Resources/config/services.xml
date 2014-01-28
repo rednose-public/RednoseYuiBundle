@@ -15,11 +15,9 @@
             <argument type="collection"/>
         </service>
         <service id="rednose_yui.builder.package_builder" class="%rednose_yui.builder.package_builder.class%">
-            <argument type="service" id="kernel"/>
             <argument type="service" id="rednose_yui.driver.yui_loader"/>
-            <argument type="service" id="templating"/>
+            <argument type="service" id="rednose_yui.builder.config_builder"/>
             <argument type="collection"/>
-
         </service>
     </services>
 </container>

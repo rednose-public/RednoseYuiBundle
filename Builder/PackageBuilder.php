@@ -3,27 +3,18 @@
 namespace Rednose\YuiBundle\Builder;
 
 use Rednose\YuiBundle\Driver\YuiLoaderDriver;
-use Symfony\Component\HttpKernel\Kernel;
-use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
 
 class PackageBuilder
 {
-    const YUI_DIR = 'yui';
-
-    /**
-     * @var Kernel
-     */
-    protected $kernel;
-
     /**
      * @var YuiLoaderDriver
      */
     protected $loader;
 
     /**
-     * @var EngineInterface
+     * @var ConfigBuilder
      */
-    protected $templating;
+    protected $builder;
 
     /**
      * @var array
@@ -33,22 +24,29 @@ class PackageBuilder
     /**
      * Constructor.
      *
-     * @param Kernel          $kernel
      * @param YuiLoaderDriver $loader
-     * @param EngineInterface $templating
+     * @param ConfigBuilder   $builder
      * @param array           $bundles
      */
-    public function __construct(Kernel $kernel, YuiLoaderDriver $loader, EngineInterface $templating, array $bundles)
+    public function __construct(YuiLoaderDriver $loader, ConfigBuilder $builder, array $bundles)
     {
-        $this->kernel     = $kernel;
-        $this->loader     = $loader;
-        $this->bundles    = $bundles;
-        $this->templating = $templating;
-        $this->path       = sprintf('%s/../web/%s', $kernel->getRootDir(), self::YUI_DIR);
+        $this->loader  = $loader;
+        $this->bundles = $bundles;
+        $this->builder = $builder;
     }
 
+    /**
+     * @param  $name
+     * @return string
+     *
+     * @throws \InvalidArgumentException
+     */
     public function package($name)
     {
-        print $name;
+        if (!isset($this->bundles[$name])) {
+            throw new \InvalidArgumentException('Package is not registered: '.$name);
+        }
+
+        return $this->loader->getPackage($this->bundles[$name], $this->builder->getRawJson());
     }
 }

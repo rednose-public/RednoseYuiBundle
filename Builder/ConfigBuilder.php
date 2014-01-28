@@ -63,7 +63,21 @@ class ConfigBuilder
             $this->cacheConfig($baseUrl, $local);
         }
 
-        return sprintf('/%s/%s', self::YUI_DIR, $this->getFilename());
+        $url = sprintf('/%s/%s', self::YUI_DIR, $this->getFilename());
+
+        if (!$baseUrl) {
+            return $url;
+        }
+
+        return sprintf('/%s/%s', trim($baseUrl, '/'), trim($url, '/'));
+    }
+
+    /**
+     * @return string
+     */
+    public function getRawJson()
+    {
+        return $this->getJson($this->getGroups(), true);
     }
 
     /**
@@ -94,12 +108,13 @@ class ConfigBuilder
      *
      * @return string
      */
-    protected function getJson($groups, $local, $baseUrl)
+    protected function getJson($groups, $local, $baseUrl = null)
     {
         return $this->templating->render('RednoseYuiBundle:Yui:config.json.twig', array(
             'groups'  => $groups,
             'local'   => $local,
             'baseUrl' => $baseUrl,
+            'base'    => sprintf('%s/../web/', $this->kernel->getRootDir()),
         ));
     }
 

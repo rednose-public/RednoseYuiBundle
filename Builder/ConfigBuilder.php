@@ -44,30 +44,24 @@ class ConfigBuilder
         $this->yogi       = $yogi;
         $this->groups     = $groups;
         $this->templating = $templating;
-        $this->path       = sprintf('%s/cache/%s/rednose_yui/config.js', $kernel->getRootDir(), $kernel->getEnvironment());
+        $this->path       = sprintf('%s/../web/yui/%s', $kernel->getRootDir(), $this->getFilename());
     }
 
     /**
      * @param string $baseUrl
      * @param bool   $local
-     * @param bool   $raw
      *
      * @return string
      */
-    public function getConfig($baseUrl = null, $local = false, $raw = false)
+    public function getConfig($baseUrl = null, $local = false)
     {
-        if ($raw) {
-            return $this->getJson($this->getGroups(), $local, $baseUrl);
-        }
-
         $cache = new ConfigCache($this->path, true);
 
         if (!$cache->isFresh()) {
-            $this->buildConfig($baseUrl, $local);
+            $this->cacheConfig($baseUrl, $local);
         }
 
-        // TODO: Return URL for faster loading
-        return file_get_contents($cache);
+        return sprintf('/yui/%s', $this->getFilename());
     }
 
     /**
@@ -76,7 +70,7 @@ class ConfigBuilder
      *
      * @return string
      */
-    public function buildConfig($baseUrl = null, $local = false)
+    public function cacheConfig($baseUrl = null, $local = false)
     {
         $cache     = new ConfigCache($this->path, true);
         $groups    = $this->getGroups();
@@ -125,5 +119,18 @@ class ConfigBuilder
         }
 
         return $groups;
+    }
+
+
+    /**
+     * @return string
+     */
+    private function getFilename()
+    {
+        if ($this->kernel->getEnvironment() === 'dev') {
+            return 'config_dev.js';
+        }
+
+        return 'config.js';
     }
 }

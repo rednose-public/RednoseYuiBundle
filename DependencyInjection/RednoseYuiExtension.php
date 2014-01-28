@@ -21,10 +21,16 @@ class RednoseYuiExtension extends Extension
 
         $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
 
-        $serviceFiles = array('services');
+        $serviceFiles = array('twig', 'services');
 
         foreach ($serviceFiles as $basename) {
             $loader->load(sprintf('%s.xml', $basename));
+        }
+
+        $bundles = $container->getParameter('kernel.bundles');
+
+        if (isset($bundles['LiipMonitorBundle'])) {
+            $loader->load('monitor.xml');
         }
 
         if (!empty($config['yogi_bin'])) {

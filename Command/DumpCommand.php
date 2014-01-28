@@ -11,13 +11,13 @@ use Symfony\Component\Filesystem\Filesystem;
 use Rednose\YuiBundle\Builder\ConfigBuilder;
 use Symfony\Component\HttpKernel\Kernel;
 
-class BuildCommand extends ContainerAwareCommand
+class DumpCommand extends ContainerAwareCommand
 {
     protected function configure()
     {
         $this
-            ->setName('rednose:yui:build')
-            ->setDescription('Builds the YUI configuration.')
+            ->setName('rednose:yui:dump')
+            ->setDescription('Dumps the YUI configuration.')
             ->addArgument('baseUrl', InputArgument::OPTIONAL, 'The base URL');
         ;
     }
@@ -26,7 +26,7 @@ class BuildCommand extends ContainerAwareCommand
     {
         $output->writeln(sprintf('Writing the YUI config for the <info>%s</info> environment', $this->getKernel()->getEnvironment()));
 
-        $this->getConfigBuilder()->buildConfig($input->getArgument('baseUrl'));
+        $this->getConfigBuilder()->cacheConfig($input->getArgument('baseUrl'));
     }
 
     /**

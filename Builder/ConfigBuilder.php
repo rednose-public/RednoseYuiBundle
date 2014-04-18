@@ -80,6 +80,17 @@ class ConfigBuilder
     }
 
     /**
+     * @param string $baseUrl
+     * @param bool $local
+     *
+     * @return string
+     */
+    public function getConfigObject($baseUrl, $local = false)
+    {
+        return sprintf('YUI_config = %s;', $this->getJson($this->getGroups(), $local, $baseUrl));
+    }
+
+    /**
      * @return string
      */
     public function getRawJson()
@@ -115,7 +126,7 @@ class ConfigBuilder
      *
      * @return string
      */
-    protected function getJson($groups, $local, $baseUrl = null)
+    public function getJson($groups, $local, $baseUrl = null)
     {
         return $this->templating->render('RednoseYuiBundle:Yui:config.json.twig', array(
             'groups'  => $groups,

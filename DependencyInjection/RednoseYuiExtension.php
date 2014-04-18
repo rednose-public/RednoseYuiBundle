@@ -34,10 +34,6 @@ class RednoseYuiExtension extends Extension
 
         $bundles = $container->getParameter('kernel.bundles');
 
-        if (isset($bundles['LiipMonitorBundle'])) {
-            $loader->load('monitor.xml');
-        }
-
         if (!empty($config['yogi_bin'])) {
             $this->loadYogi($config['yogi_bin'], $container);
         }

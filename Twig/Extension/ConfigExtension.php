@@ -32,20 +32,18 @@ class ConfigExtension extends \Twig_Extension
     public function getFunctions()
     {
         return array(
-            'rednose_yui_config' => new \Twig_Function_Method($this, 'getUrl'),
+            'rednose_yui_config' => new \Twig_Function_Method($this, 'getConfig', array('is_safe' => array('html'))),
         );
     }
 
     /**
      * @return string
-     *
-     * @throws \RuntimeException
      */
-    public function getUrl()
+    public function getConfig()
     {
         $baseUrl = str_replace('/app_dev.php', '', $this->getRequest()->getBaseUrl());
 
-        return $this->getConfigBuilder()->getConfig($baseUrl);
+        return $this->getConfigBuilder()->getConfigObject($baseUrl);
     }
 
     /**

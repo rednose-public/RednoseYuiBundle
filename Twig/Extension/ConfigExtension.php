@@ -52,7 +52,7 @@ class ConfigExtension extends \Twig_Extension
     {
         $baseUrl = str_replace('/app_dev.php', '', $this->getRequest()->getBaseUrl());
 
-        return $this->getConfigBuilder()->getConfigObject($baseUrl);
+        return $this->getConfigBuilder()->getConfig($baseUrl);
     }
 
     /**

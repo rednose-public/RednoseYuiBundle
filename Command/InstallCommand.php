@@ -34,10 +34,7 @@ class InstallCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $config = array(
-            array('name' => 'rednose-ui', 'dir' => 'vendor/rednose/rednose-ui'),
-            array('name' => 'lox', 'dir' => 'src/Libbit/LoxBundle/Resources/yui')
-        );
+        $configBuilder = $this->getContainer()->get('rednose_yui.builder.config_builder');
 
         $targetArg = rtrim($input->getArgument('target'), '/');
 
@@ -56,11 +53,11 @@ class InstallCommand extends ContainerAwareCommand
 
         $output->writeln("Installing YUI assets");
 
-        foreach ($config as $package) {
-            $targetDir = $yuiDir.$package['name'];
-            $originDir = $this->getContainer()->get('kernel')->getRootDir().'/../'.$package['dir'];
+        foreach ($configBuilder->getPackages() as $name => $dir) {
+            $targetDir = $yuiDir.$name;
+            $originDir = $this->getContainer()->get('kernel')->getRootDir().'/../'.$dir;
 
-            $output->writeln(sprintf('Installing YUI assets for <comment>%s</comment> into <comment>%s</comment>', $package['name'], $targetDir));
+            $output->writeln(sprintf('Installing YUI assets for <comment>%s</comment> into <comment>%s</comment>', $dir, $targetDir));
 
             $filesystem->remove($targetDir);
 

@@ -10,9 +10,9 @@
 
     {# Base URL #}
     {% if local == true %}
-        "base": "{{ base }}cdn/yui3/build/",
+        "base": "{{ base }}yui/yui3/build/",
     {% else %}
-        "base": "{{ baseUrl }}/cdn/yui3/build/",
+        "base": "{{ baseUrl }}/yui/yui3/build/",
     {% endif %}
 
     {% if local == false %}
@@ -20,10 +20,10 @@
         "debug": false,
 
         {# Combo loader URL #}
-        "comboBase": "{{ baseUrl }}/cdn/combo?",
+        "comboBase": "{{ baseUrl }}/yui/combo?",
 
         {# Combo loader root #}
-        "root": "cdn/yui3/build/",
+        "root": "yui/yui3/build/",
 
         {# Combine and filter settings #}
         {% if app.environment == 'dev' %}
@@ -40,14 +40,14 @@
         "gallery": {
             {# Base URL #}
             {% if local == true %}
-                "base": "{{ base }}cdn/yui3-gallery/build/",
+                "base": "{{ base }}yui/yui3-gallery/build/",
             {% else %}
-                "base": "{{ baseUrl }}/cdn/yui3-gallery/build/",
+                "base": "{{ baseUrl }}/yui/yui3-gallery/build/",
             {% endif %}
 
             {% if local == false %}
                 {# Combo loader root #}
-                "root": "cdn/yui3-gallery/build/",
+                "root": "yui/yui3-gallery/build/",
 
                 {# Combine and filter settings #}
                 {% if app.environment == 'dev' %}
@@ -68,17 +68,17 @@
 
         {# Custom group configuration #}
         {% for group in groups %}
-            , "{{ group.name }}": {
+            , "{{ group }}": {
                 {# Base URL #}
                 {% if local == true %}
-                    "base": "{{ base }}{{ group.root }}/build/",
+                    "base": "{{ base }}/yui/{{ group }}/build/",
                 {% else %}
-                    "base": "{{ baseUrl }}/{{ group.root }}/build/",
+                    "base": "{{ baseUrl }}/yui/{{ group }}/build/",
                 {% endif %}
 
                 {% if local == false %}
                     {# Combo loader root #}
-                    "root": "{{ group.root }}/build/",
+                    "root": "yui/{{ group }}/build/",
 
                     {# Combine and filter settings #}
                     {% if app.environment == 'dev' %}

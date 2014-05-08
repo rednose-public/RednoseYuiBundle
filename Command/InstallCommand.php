@@ -35,7 +35,8 @@ class InstallCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $config = array(
-            array('name' => 'rednose-ui', 'dir' => 'vendor/rednose/rednose-ui')
+            array('name' => 'rednose-ui', 'dir' => 'vendor/rednose/rednose-ui'),
+            array('name' => 'lox', 'dir' => 'src/Libbit/LoxBundle/Resources/yui')
         );
 
         $targetArg = rtrim($input->getArgument('target'), '/');

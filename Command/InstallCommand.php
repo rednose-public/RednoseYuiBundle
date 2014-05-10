@@ -16,6 +16,9 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Installs YUI asset files into the public web directory.
+ */
 class InstallCommand extends ContainerAwareCommand
 {
     protected function configure()

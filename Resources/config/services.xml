@@ -7,8 +7,11 @@
         <service id="rednose_yui.builder.config_builder" class="%rednose_yui.builder.config_builder.class%">
             <argument type="service" id="kernel"/>
             <argument type="service" id="templating"/>
-            <argument type="collection"/>
-            <argument type="collection"/>
+            <argument>%rednose_yui.version%</argument>
+            <argument>%rednose_yui.gallery%</argument>
+            <argument>%rednose_yui.root%</argument>
+            <argument>%rednose_yui.groups%</argument>
+            <argument>%rednose_combo_handler.roots%</argument>
         </service>
     </services>
 </container>

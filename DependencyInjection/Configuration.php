@@ -13,6 +13,7 @@ namespace Rednose\YuiBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 
 class Configuration implements ConfigurationInterface
 {
@@ -22,27 +23,67 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('rednose_yui');
+        $rootNode    = $treeBuilder->root('rednose_yui', 'array');
 
-        $rootNode
-            ->children()
-                ->arrayNode('packages')
-                    ->prototype('array')
-                        ->children()
-                            ->scalarNode('name')->isRequired()->end()
-                            ->scalarNode('dir')->isRequired()->end()
-                        ->end()
-                    ->end()
-                ->end()
-                ->arrayNode('groups')
-                    ->prototype('array')
-                        ->children()
-                            ->scalarNode('name')->isRequired()->end()
-                        ->end()
-                    ->end()
-                ->end()
-            ->end();
+        $this->addBaseSection($rootNode);
+        $this->addAssetsSection($rootNode);
+        $this->addGroupsSection($rootNode);
 
         return $treeBuilder;
+    }
+
+    /**
+     * @param ArrayNodeDefinition $node
+     */
+    private function addBaseSection(ArrayNodeDefinition $node)
+    {
+        $node
+            ->children()
+                ->scalarNode('version')
+                    ->isRequired()
+                    ->cannotBeEmpty()
+                    ->defaultValue('3.16.0')
+                ->end()
+                ->scalarNode('gallery')
+                    ->isRequired()
+                    ->cannotBeEmpty()
+                    ->defaultValue('2014.04.02-20-01')
+                ->end()
+                ->scalarNode('combo_root')
+                    ->isRequired()
+                    ->cannotBeEmpty()
+                ->end()
+            ->end();
+    }
+
+    /**
+     * @param ArrayNodeDefinition $node
+     */
+    private function addAssetsSection(ArrayNodeDefinition $node)
+    {
+        $node
+            ->children()
+                ->arrayNode('assets')
+                    // Don't normalize keys as Symfony (incorrectly) converts hyphens to underscores by default.
+                    ->normalizeKeys(false)
+                    ->requiresAtLeastOneElement()
+                    ->useAttributeAsKey('name')
+                    ->prototype('scalar')->end()
+                ->end()
+            ->end();
+    }
+
+    /**
+     * @param ArrayNodeDefinition $node
+     */
+    private function addGroupsSection(ArrayNodeDefinition $node)
+    {
+        $node
+            ->children()
+                ->arrayNode('combo_groups')
+                    ->requiresAtLeastOneElement()
+                    ->prototype('scalar')->end()
+                ->end()
+            ->end();
     }
 }

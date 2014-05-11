@@ -1,37 +1,27 @@
 {% autoescape %}
 {
     {# Basic settings #}
-    {% if local == true %}
-        "ignoreRegistered": true,
-    {% else %}
-        "allowRollup": true,
-        "fetchCSS": true,
-    {% endif %}
+    "allowRollup": true,
+    "fetchCSS": true,
 
     {# Base URL #}
-    {% if local == true %}
-        "base": "{{ base }}yui/yui3/build/",
+    "base": "{{ baseUrl }}/{{ roots[root] }}/{{ version }}/",
+
+    {# Debug settings #}
+    "debug": false,
+
+    {# Combo loader URL #}
+    "comboBase": "{{ path('rednose_combo_handler_combo', { root: root }) }}?",
+
+    {# Combo loader root #}
+    "root": "{{ version }}/",
+
+    {# Combine and filter settings #}
+    {% if app.environment == 'dev' %}
+        "combine": false,
+        "filter": "raw",
     {% else %}
-        "base": "{{ baseUrl }}/yui/yui3/build/",
-    {% endif %}
-
-    {% if local == false %}
-        {# Debug settings #}
-        "debug": false,
-
-        {# Combo loader URL #}
-        "comboBase": "{{ baseUrl }}/yui/combo?",
-
-        {# Combo loader root #}
-        "root": "yui/yui3/build/",
-
-        {# Combine and filter settings #}
-        {% if app.environment == 'dev' %}
-            "combine": false,
-            "filter": "raw",
-        {% else %}
-            "combine": true,
-        {% endif %}
+        "combine": true,
     {% endif %}
 
     {# Group configuration settings #}
@@ -39,23 +29,17 @@
         {# Gallery configuration #}
         "gallery": {
             {# Base URL #}
-            {% if local == true %}
-                "base": "{{ base }}yui/yui3-gallery/build/",
+            "base": "{{ baseUrl }}/{{ roots[root] }}/gallery-{{ gallery }}/",
+
+            {# Combo loader root #}
+            "root": "gallery-{{ gallery }}/",
+
+            {# Combine and filter settings #}
+            {% if app.environment == 'dev' %}
+                "combine": false,
+                "filter": "raw",
             {% else %}
-                "base": "{{ baseUrl }}/yui/yui3-gallery/build/",
-            {% endif %}
-
-            {% if local == false %}
-                {# Combo loader root #}
-                "root": "yui/yui3-gallery/build/",
-
-                {# Combine and filter settings #}
-                {% if app.environment == 'dev' %}
-                    "combine": false,
-                    "filter": "raw",
-                {% else %}
-                    "combine": true,
-                {% endif %}
+                "combine": true,
             {% endif %}
 
             {# Match by patterns, as we don't have any gallery metadata configured #}
@@ -70,24 +54,21 @@
         {% for group in groups %}
             , "{{ group }}": {
                 {# Base URL #}
-                {% if local == true %}
-                    "base": "{{ base }}/yui/{{ group }}/build/",
+                "base": "{{ baseUrl }}/{{ roots[group] }}/",
+
+                {# Combo loader URL #}
+                "comboBase": "{{ path('rednose_combo_handler_combo', { root: group }) }}?",
+
+                {# Combo loader root #}
+                "root": "",
+
+                {# Combine and filter settings #}
+                {% if app.environment == 'dev' %}
+                    "combine": false,
+                    "debug": true,
+                    "filter": "debug",
                 {% else %}
-                    "base": "{{ baseUrl }}/yui/{{ group }}/build/",
-                {% endif %}
-
-                {% if local == false %}
-                    {# Combo loader root #}
-                    "root": "yui/{{ group }}/build/",
-
-                    {# Combine and filter settings #}
-                    {% if app.environment == 'dev' %}
-                        "combine": false,
-                        "debug": true,
-                        "filter": "debug",
-                    {% else %}
-                        "combine": true,
-                    {% endif %}
+                    "combine": true,
                 {% endif %}
             }
         {% endfor %}

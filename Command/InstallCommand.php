@@ -37,8 +37,6 @@ class InstallCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $configBuilder = $this->getContainer()->get('rednose_yui.builder.config_builder');
-
         $targetArg = rtrim($input->getArgument('target'), '/');
 
         if (!is_dir($targetArg)) {
@@ -56,15 +54,16 @@ class InstallCommand extends ContainerAwareCommand
 
         $output->writeln("Installing YUI assets");
 
-        foreach ($configBuilder->getPackages() as $name => $dir) {
+        var_dump($this->getContainer()->get('rednose_yui.builder.config_builder')->getConfig('test'));
+        exit;
+        foreach ($this->getContainer()->getParameter('rednose_yui.assets') as $name => $dir) {
             $targetDir = $yuiDir.$name;
-            $originDir = $this->getContainer()->get('kernel')->getRootDir().'/../'.$dir;
 
             $output->writeln(sprintf('Installing YUI assets for <comment>%s</comment> into <comment>%s</comment>', $dir, $targetDir));
 
             $filesystem->remove($targetDir);
 
-            $filesystem->symlink($originDir, $targetDir);
+            $filesystem->symlink($dir, $targetDir);
         }
     }
 }

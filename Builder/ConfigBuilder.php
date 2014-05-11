@@ -11,16 +11,11 @@
 
 namespace Rednose\YuiBundle\Builder;
 
-use Rednose\YuiBundle\Driver\YogiDriver;
 use Symfony\Component\HttpKernel\Kernel;
 use Symfony\Bundle\FrameworkBundle\Templating\EngineInterface;
-use Symfony\Component\Config\ConfigCache;
-use Symfony\Component\Config\Resource\DirectoryResource;
 
 class ConfigBuilder
 {
-    const YUI_DIR = 'yui';
-
     /**
      * @var Kernel
      */
@@ -32,103 +27,76 @@ class ConfigBuilder
     protected $templating;
 
     /**
+     * @var string
+     */
+    protected $version;
+
+    /**
+     * @var string
+     */
+    protected $gallery;
+
+    /**
+     * @var string
+     */
+    protected $root;
+
+    /**
      * @var array
      */
     protected $groups;
+
+    /**
+     * @var array
+     */
+    protected $roots;
 
     /**
      * Constructor.
      *
      * @param Kernel          $kernel
      * @param EngineInterface $templating
+     * @param string          $version
+     * @param string          $gallery
+     * @param string          $root
      * @param array           $groups
-     *
-     * @throws \RuntimeException
+     * @param array           $roots
      */
-    public function __construct(Kernel $kernel, EngineInterface $templating, array $groups, array $packages)
+    public function __construct(Kernel $kernel, EngineInterface $templating, $version, $gallery, $root, array $groups = array(), array $roots = array())
     {
         $this->kernel     = $kernel;
-        $this->groups     = $groups;
         $this->templating = $templating;
-        $this->packages   = $packages;
+        $this->version    = $version;
+        $this->root       = $root;
+        $this->gallery    = $gallery;
+        $this->groups     = $groups;
+        $this->roots      = $roots;
     }
 
     /**
      * @param string $baseUrl
-     * @param bool $local
      *
      * @return string
      */
-    public function getConfig($baseUrl, $local = false)
+    public function getConfig($baseUrl)
     {
-        $groups = array();
-
-        foreach ($this->groups as $name => $root) {
-            $groups[] = $name;
-        }
-
-        return sprintf('YUI_config = %s;', $this->getJson($groups, $local, $baseUrl));
+        return sprintf('YUI_config = %s;', $this->getJson($baseUrl));
     }
 
     /**
-     * @param array  $groups
-     * @param bool   $local
      * @param string $baseUrl
      *
      * @return string
      */
-    public function getJson($groups, $local, $baseUrl = null)
+    public function getJson($baseUrl)
     {
         return $this->templating->render('RednoseYuiBundle:Yui:config.json.twig', array(
-            'groups'  => $groups,
-            'local'   => $local,
             'baseUrl' => $baseUrl,
-            'base'    => sprintf('%s/../web/', $this->kernel->getRootDir()),
+            'version' => $this->version,
+            'root'    => $this->root,
+            'gallery' => $this->gallery,
+            'groups'  => $this->groups,
+            'roots'   => $this->roots
         ));
     }
-
-    /**
-     * @return array
-     */
-    public function getConfigGroups()
-    {
-        return $this->groups;
-    }
-
-    public function getPackages()
-    {
-        return $this->packages;
-    }
-//
-//    /**
-//     * @return array
-//     */
-//    protected function getGroups()
-//    {
-//        $groups = array();
-//
-//        foreach ($this->groups as $name => $root) {
-//            $path = sprintf('%s/../web/%s/src', $this->kernel->getRootDir(), $root);
-//
-//            $groups[] = array(
-//                'name'     => $name,
-//                'root'     => $root,
-//                'metadata' => $this->yogi->getLoaderMetadata($path),
-//            );
-//        }
-//
-//        return $groups;
-//    }
-//
-//    /**
-//     * @return string
-//     */
-//    private function getFilename()
-//    {
-//        if ($this->kernel->getEnvironment() === 'dev') {
-//            return 'config_dev.js';
-//        }
-//
-//        return 'config.js';
-//    }
 }

@@ -54,8 +54,6 @@ class InstallCommand extends ContainerAwareCommand
 
         $output->writeln("Installing YUI assets");
 
-        var_dump($this->getContainer()->get('rednose_yui.builder.config_builder')->getConfig('test'));
-        exit;
         foreach ($this->getContainer()->getParameter('rednose_yui.assets') as $name => $dir) {
             $targetDir = $yuiDir.$name;
 

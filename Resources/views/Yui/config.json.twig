@@ -17,7 +17,7 @@
     "root": "{{ version }}/",
 
     {# Combine and filter settings #}
-    {% if app.environment == 'dev' %}
+    {% if app.debug %}
         "combine": false,
         "filter": "raw",
     {% else %}
@@ -35,7 +35,7 @@
             "root": "gallery-{{ gallery }}/",
 
             {# Combine and filter settings #}
-            {% if app.environment == 'dev' %}
+            {% if app.debug %}
                 "combine": false,
                 "filter": "raw",
             {% else %}
@@ -63,7 +63,7 @@
                 "root": "",
 
                 {# Combine and filter settings #}
-                {% if app.environment == 'dev' %}
+                {% if app.debug %}
                     "combine": false,
                     "debug": true,
                     "filter": "debug",

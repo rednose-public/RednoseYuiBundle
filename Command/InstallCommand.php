@@ -14,6 +14,7 @@ namespace Rednose\YuiBundle\Command;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -28,6 +29,7 @@ class InstallCommand extends ContainerAwareCommand
             ->setDefinition(array(
                 new InputArgument('target', InputArgument::OPTIONAL, 'The target directory', 'web'),
             ))
+            ->addOption('symlink', null, InputOption::VALUE_NONE, 'If set, the yui assets will be symlinked')
             ->setDescription('Installs the YUI assets under a public web directory.');
         ;
     }
@@ -43,7 +45,7 @@ class InstallCommand extends ContainerAwareCommand
             throw new \InvalidArgumentException(sprintf('The target directory "%s" does not exist.', $input->getArgument('target')));
         }
 
-        if (!function_exists('symlink') && $input->getOption('symlink')) {
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN' && $input->getOption('symlink')) {
             throw new \InvalidArgumentException('The symlink() function is not available on your system..');
         }
 
@@ -55,13 +57,18 @@ class InstallCommand extends ContainerAwareCommand
         $output->writeln("Installing YUI assets");
 
         foreach ($this->getContainer()->getParameter('rednose_yui.assets') as $name => $dir) {
-            $targetDir = $yuiDir.$name;
+            $dir = realpath($dir);
+            $targetDir = $yuiDir . $name;
 
             $output->writeln(sprintf('Installing YUI assets for <comment>%s</comment> into <comment>%s</comment>', $dir, $targetDir));
 
             $filesystem->remove($targetDir);
 
-            $filesystem->symlink($dir, $targetDir);
+            if ($input->getOption('symlink')) {
+                $filesystem->symlink($dir, $targetDir);
+            } else {
+                $filesystem->mirror($dir, $targetDir);
+            }
         }
     }
 }
